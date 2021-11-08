@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -6,53 +6,61 @@ import {
   StatusBar,
 } from 'react-native';
 
-import SearchBar from './src/mobile/components/SearchBar';
-import {Location} from './src/common/types/location';
-import Card from './src/mobile/components/Card';
-import {getLocations, getWeatherForLocation} from './src/api/api';
-import {CurrentWeather} from './src/common/types/current-weather';
+import moment from 'moment';
+
 import {fetchLocation} from './src/mobile/helpers/geo-location';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  currentLocationSet,
+  LocationStateType,
+} from './src/mobile/store/location/slices';
+import {
+  fetchForecastAction,
+  fetchWeatherAction,
+  WeatherStateType,
+} from './src/mobile/store/weather/slices';
+import WeatherCard from './src/mobile/components/WeatherCard';
+import {DailyForecast} from './src/common/types/forecast';
 
 const App = () => {
-  const [loading, setLoading] = useState(false);
-  const [weather, setWeather] = useState<{current: CurrentWeather}>();
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedLocations, setSelectedLocations] = useState<Location[]>([]);
-  const [currentLocation, setCurrentLocation] =
-    useState<{lat: number; lon: number}>();
+  const dispatch = useDispatch();
+  const locationState = useSelector(
+    (state: {locations: LocationStateType}) => state.locations,
+  );
+  const weatherState = useSelector(
+    (state: {weather: WeatherStateType}) => state.weather,
+  );
+
+  const {locationError, locationLoading, locations, currentLocation} =
+    locationState;
+
+  const {currentWeather, forecast, weatherLoading, weatherError} = weatherState;
 
   const fetchCurrentLocation = useCallback(async () => {
     await fetchLocation({
-      onLocationObtained: setCurrentLocation,
+      onLocationObtained: value => dispatch(currentLocationSet(value)),
     });
-  }, []);
-
-  const fetchWeatherForCurrentLocation = useCallback(async () => {
-    if (currentLocation) {
-      const result = await getWeatherForLocation(
-        currentLocation?.lat,
-        currentLocation?.lon,
-      );
-
-      setWeather(result);
-    }
-  }, [currentLocation]);
+  }, [dispatch]);
 
   useEffect(() => {
     fetchCurrentLocation();
+  }, [fetchCurrentLocation]);
 
-    fetchWeatherForCurrentLocation();
-  }, [fetchCurrentLocation, fetchWeatherForCurrentLocation, weather]);
-
-  const handleChangeText = useCallback(async (value: string) => {
-    if (value.length > 3) {
-      setLoading(true);
-      const results = await getLocations(value);
-
-      setLoading(false);
-      setLocations(results);
+  useEffect(() => {
+    if (currentLocation) {
+      dispatch(fetchWeatherAction(currentLocation));
+      dispatch(fetchForecastAction(currentLocation));
     }
-  }, []);
+  }, [currentLocation, dispatch, fetchCurrentLocation]);
+
+  // const handleChangeText = useCallback(
+  //   async (value: string) => {
+  //     if (value?.length > 3) {
+  //       dispatch(fetchLocationsAction(value));
+  //     }
+  //   },
+  //   [dispatch],
+  // );
 
   return (
     <>
@@ -60,18 +68,30 @@ const App = () => {
         <StatusBar />
         <ScrollView contentInsetAdjustmentBehavior="automatic" />
       </SafeAreaView>
-      <SearchBar
+      {/* <SearchBar
         data={locations}
         onChangeText={handleChangeText}
         onResultPress={index => setSelectedLocations(locations[index])}
-      />
-      {loading && <ActivityIndicator size="large" color="#144d91" />}
-      {!loading && !!weather && (
-        <Card
-          title={weather.current.main}
-          subtitle={String(weather.current.temp)}
-          summary={'SUMMARY'}
-        />
+      /> */}
+      {weatherLoading && <ActivityIndicator size="large" color="#144d91" />}
+      {!weatherLoading && !!currentWeather && (
+        <>
+          <WeatherCard
+            title={currentWeather.main}
+            subtitle={String(currentWeather.temp)}
+            summary={'SUMMARY'}
+            isMainCard
+          />
+          {forecast &&
+            forecast.map((f: DailyForecast, index) => (
+              <WeatherCard
+                key={index}
+                title={moment(f.dt * 1000).format('dddd D')}
+                subtitle={`${String(f.temp.max).replace('.', ',')}°C`}
+                summary={String(f.temp.min)}
+              />
+            ))}
+        </>
       )}
     </>
   );

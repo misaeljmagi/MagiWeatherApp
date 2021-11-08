@@ -4,9 +4,7 @@ import App from './App';
 import {name as appName} from './app.json';
 import {Provider} from 'react-redux';
 
-import configureStore from './src/mobile/store/configureStore';
-
-const store = configureStore();
+import store from './src/mobile/store/store';
 
 const RNRedux = () => (
   <Provider store={store}>

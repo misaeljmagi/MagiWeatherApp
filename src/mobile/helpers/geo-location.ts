@@ -3,7 +3,7 @@ import {AuthorizationResult} from '../../common/types/location';
 
 type fetchLocationType = {
   onLocationObtained: (location: {lat: number; lon: number}) => void;
-  onError?: () => Promise<void>;
+  onError?: (error: any) => void;
 };
 
 export const fetchLocation = async ({

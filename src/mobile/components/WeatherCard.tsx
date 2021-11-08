@@ -3,14 +3,14 @@ import {StyleSheet, Text, View} from 'react-native';
 
 import Dimensions from '../helpers/screen-dimensions';
 
-type CardProps = {
+type WeatherCardProps = {
   title: string;
   subtitle: string;
   summary: string;
   isMainCard?: boolean;
 };
 
-const Card: React.FC<CardProps> = ({
+const WeatherCard: React.FC<WeatherCardProps> = ({
   title,
   subtitle,
   summary,
@@ -59,4 +59,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Card;
+export default WeatherCard;
