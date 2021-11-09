@@ -50,12 +50,8 @@ export const fetchForecastAction = createAsyncThunk(
 //slice
 
 const slice = createSlice({
-  name: 'store',
+  name: 'weather',
   initialState: {
-    currentLocation: undefined,
-    locations: [],
-    locationLoading: false,
-    locationError: undefined,
     currentWeather: undefined,
     forecast: [],
     weatherLoading: false,

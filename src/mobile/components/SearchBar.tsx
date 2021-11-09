@@ -23,9 +23,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
     <View style={[styles.container]}>
       <AutocompleteInput
         data={data.map(
-          d => `${d.city || ''} ${d.state || ''} ${d.country || ''}`,
+          d =>
+            `${d.city?.toUpperCase()} ${d.state?.toUpperCase()} ${d.country?.toUpperCase()}`,
         )}
-        style={[styles.input, {width: width * 0.8}]}
+        inputContainerStyle={[styles.input, {width: width * 0.9}]}
         listContainerStyle={styles.listContainer}
         value={text}
         hideResults={text.length === 0}
@@ -58,11 +59,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   input: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderRadius: 4,
     margin: 10,
-    padding: 5,
-    height: 30,
   },
   listContainer: {
     padding: 10,

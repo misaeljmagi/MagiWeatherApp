@@ -1,9 +1,4 @@
-import {
-  createAction,
-  createAsyncThunk,
-  createSlice,
-  PayloadAction,
-} from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {AxiosError} from 'axios';
 
 import {getLocations} from '../../../api/api';
@@ -12,6 +7,7 @@ import {Location} from '../../../common/types/location';
 
 export type LocationStateType = {
   currentLocation?: Location;
+  savedLocations: Location[];
   locations: Location[];
   locationLoading: boolean;
   locationError: any;
@@ -33,25 +29,27 @@ export const fetchLocationsAction = createAsyncThunk(
   },
 );
 
-export const addLocationAction = createAction('location/add');
-
 //slice
 
-const slice = createSlice({
-  name: 'store',
+const slice = createSlice<LocationStateType, any>({
+  name: 'location',
   initialState: {
     currentLocation: undefined,
+    savedLocations: [],
     locations: [],
     locationLoading: false,
     locationError: undefined,
-    currentWeather: undefined,
-    forecast: [],
-    weatherLoading: false,
-    weatherError: undefined,
   },
   reducers: {
-    currentLocationSet(state, action) {
+    currentLocationSet: (state: LocationStateType, action: any) => {
       state.currentLocation = action.payload;
+    },
+    locationSelect: (state: LocationStateType, action: any) => {
+      state.savedLocations.push(state.locations[action.payload]);
+    },
+    locationRemove: (state: LocationStateType, action: any) => {
+      console.warn(Object.keys(action.payload));
+      state.savedLocations.splice(action.payload, 1);
     },
   },
   extraReducers: (builder: any) => {
@@ -65,8 +63,8 @@ const slice = createSlice({
     //fulfilled
     builder.addCase(
       fetchLocationsAction.fulfilled,
-      (state: LocationStateType, action: PayloadAction<Location>) => {
-        state.currentLocation = action?.payload;
+      (state: LocationStateType, action: PayloadAction<Location[]>) => {
+        state.locations = action?.payload;
         state.locationLoading = false;
         state.locationError = undefined;
       },
@@ -80,19 +78,10 @@ const slice = createSlice({
         state.locationError = action?.payload;
       },
     );
-
-    builder.addCase(
-      addLocationAction.type,
-      (state: LocationStateType, action: PayloadAction<Location>) => {
-        state.locationLoading = true;
-        state.locations?.push(action.payload);
-        state.locationLoading = false;
-        state.locationError = undefined;
-      },
-    );
   },
 });
 
-export const {currentLocationSet} = slice.actions;
+export const {currentLocationSet, locationSelect, locationRemove} =
+  slice.actions;
 
 export default slice.reducer;
