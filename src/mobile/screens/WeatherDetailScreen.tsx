@@ -99,8 +99,12 @@ const WeatherDetailScreen: React.FC = () => {
         <>
           <WeatherCard
             title={currentWeather.main}
-            firstSubtitle={formatTemperature(currentWeather.temp)}
-            secondSubtitle={formatTemperature(currentWeather.feels_like)}
+            firstSubtitle={`Temperature: ${formatTemperature(
+              currentWeather.temp,
+            )}`}
+            secondSubtitle={`Feels like: ${formatTemperature(
+              currentWeather.feels_like,
+            )}`}
             isMainCard
           />
           {forecast &&
