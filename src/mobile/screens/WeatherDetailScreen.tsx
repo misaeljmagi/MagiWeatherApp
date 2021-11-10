@@ -37,7 +37,7 @@ const WeatherDetailScreen: React.FC = () => {
     (state: {weather: WeatherStateType}) => state.weather,
   );
 
-  const {currentLocation, selectedLocation} = locationState;
+  const {currentLocation, selectedLocation, locationError} = locationState;
 
   const {currentWeather, forecast, weatherLoading, weatherError} = weatherState;
 
@@ -46,7 +46,6 @@ const WeatherDetailScreen: React.FC = () => {
       fetchLocation({
         onLocationObtained: value => dispatch(currentLocationSet(value)),
       }),
-
     [dispatch],
   );
 
@@ -85,7 +84,7 @@ const WeatherDetailScreen: React.FC = () => {
         </View>
       )}
 
-      {weatherError && (
+      {!weatherLoading && !currentWeather && (
         <ServiceUnavailable
           title={
             'Sorry, service is currently not available, please try again later'

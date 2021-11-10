@@ -1,6 +1,8 @@
 import Axios from 'axios';
 
-Axios.defaults.baseURL = 'http://localhost:3000/';
+import {API_BASE_URL} from '@env';
+
+Axios.defaults.baseURL = API_BASE_URL;
 
 export const getCurrentWeatherForLocation = async (
   lat: number,
