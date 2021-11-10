@@ -1,19 +1,19 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import {Icon} from 'react-native-elements';
 
 import Dimensions from '../helpers/screen-dimensions';
+import CustomIcon from './CustomIcon';
 
 type LocationCardProps = {
   title: string;
   subtitle: string;
-  onDeleteLocationPress?: (index: number) => void;
+  onDeleteLocationPress?: (index) => void;
 };
 
 const LocationCard: React.FC<LocationCardProps> = ({
   title,
   subtitle,
-  onDeleteLocationPress: onDeleteCardPress,
+  onDeleteLocationPress,
 }) => {
   const {height, width} = Dimensions;
 
@@ -30,11 +30,11 @@ const LocationCard: React.FC<LocationCardProps> = ({
       <View>
         <Text style={styles.subtitle}>{subtitle}</Text>
       </View>
-      <Icon
+      <CustomIcon
         name={'delete'}
         color={'red'}
         style={styles.deleteIcon}
-        onPress={onDeleteCardPress}
+        onPress={onDeleteLocationPress}
       />
     </View>
   );

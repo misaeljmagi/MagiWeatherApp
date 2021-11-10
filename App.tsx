@@ -10,6 +10,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {navigationRef} from './RootNavigation';
+import CustomIcon from './src/mobile/components/CustomIcon';
 
 const Tab = createBottomTabNavigator();
 
@@ -54,7 +55,22 @@ const AddLocationStackScreen = () => (
   </AddLocationStack.Navigator>
 );
 const TabNavigator = () => (
-  <Tab.Navigator>
+  <Tab.Navigator
+    screenOptions={({route}) => ({
+      tabBarIcon: ({size}) => {
+        let iconName;
+
+        if (route.name === 'Home') {
+          iconName = 'wb-sunny';
+        } else if (route.name === 'Locations') {
+          iconName = 'map';
+        }
+
+        return <CustomIcon name={iconName} size={size} />;
+      },
+      tabBarActiveTintColor: 'tomato',
+      tabBarInactiveTintColor: 'gray',
+    })}>
     <Tab.Screen name="Home" component={HomeStackScreen} />
     <Tab.Screen name="Locations" component={LocationsStackScreen} />
   </Tab.Navigator>
