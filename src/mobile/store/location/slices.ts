@@ -7,6 +7,7 @@ import {Location} from '../../../common/types/location';
 
 export type LocationStateType = {
   currentLocation?: Location;
+  selectedLocation?: Location;
   savedLocations: Location[];
   locations: Location[];
   locationLoading: boolean;
@@ -35,6 +36,7 @@ const slice = createSlice<LocationStateType, any>({
   name: 'location',
   initialState: {
     currentLocation: undefined,
+    selectedLocation: undefined,
     savedLocations: [],
     locations: [],
     locationLoading: false,
@@ -48,19 +50,20 @@ const slice = createSlice<LocationStateType, any>({
       state.savedLocations.push(state.locations[action.payload]);
     },
     locationRemove: (state: LocationStateType, action: any) => {
-      console.warn(Object.keys(action.payload));
       state.savedLocations.splice(action.payload, 1);
+    },
+    listLocationSelected: (state: LocationStateType, action: any) => {
+      state.selectedLocation = action.payload;
     },
   },
   extraReducers: (builder: any) => {
-    //pending
     builder.addCase(
       fetchLocationsAction.pending,
       (state: LocationStateType, _action: PayloadAction<Location>) => {
         state.locationLoading = true;
       },
     );
-    //fulfilled
+
     builder.addCase(
       fetchLocationsAction.fulfilled,
       (state: LocationStateType, action: PayloadAction<Location[]>) => {
@@ -69,7 +72,7 @@ const slice = createSlice<LocationStateType, any>({
         state.locationError = undefined;
       },
     );
-    //rejected
+
     builder.addCase(
       fetchLocationsAction.rejected,
       (state: LocationStateType, action: PayloadAction<Location>) => {
@@ -81,7 +84,11 @@ const slice = createSlice<LocationStateType, any>({
   },
 });
 
-export const {currentLocationSet, locationSelected, locationRemoved} =
-  slice.actions;
+export const {
+  currentLocationSet,
+  locationSelected,
+  locationRemoved,
+  listLocationSelected,
+} = slice.actions;
 
 export default slice.reducer;

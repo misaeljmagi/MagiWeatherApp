@@ -8,7 +8,7 @@ import AddLocationScreen from './src/mobile/screens/AddLocationScreen';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {navigationRef} from './RootNavigation';
+
 import CustomIcon from './src/mobile/components/CustomIcon';
 import WeatherDetailScreen from './src/mobile/screens/WeatherDetailScreen';
 
@@ -79,13 +79,9 @@ const TabNavigator = () => (
 const App = () => {
   return (
     <SafeAreaProvider>
-      <NavigationContainer ref={navigationRef}>
+      <NavigationContainer>
         <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Screen name="Home" component={TabNavigator} />
-          <Stack.Screen
-            name="Weather Detail"
-            component={WeatherDetailStackScreen}
-          />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

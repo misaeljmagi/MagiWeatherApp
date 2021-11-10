@@ -11,21 +11,19 @@ type SearchBarProps = {
   onResultPress: (index: number) => void;
 };
 
+const {width, height} = Dimensions;
+
 const SearchBar: React.FC<SearchBarProps> = ({
   data,
   onChangeText,
   onResultPress,
 }) => {
   const [text, setText] = useState<string>('');
-  const {width} = Dimensions;
 
   return (
     <View style={[styles.container]}>
       <AutocompleteInput
-        data={data.map(
-          d =>
-            `${d.city?.toUpperCase()} ${d.state?.toUpperCase()} ${d.country?.toUpperCase()}`,
-        )}
+        data={data}
         inputContainerStyle={[styles.input, {width: width * 0.9}]}
         listContainerStyle={styles.listContainer}
         value={text}
@@ -39,11 +37,22 @@ const SearchBar: React.FC<SearchBarProps> = ({
           keyExtractor: (_, index) => String(index),
           renderItem: ({item, index}) => (
             <TouchableOpacity
+              style={[styles.listItem, {height: height * 0.03}]}
               onPress={() => {
                 onResultPress(index);
                 setText('');
               }}>
-              <Text>{item}</Text>
+              <Text style={[styles.listItemText, {fontWeight: 'bold'}]}>
+                {item.city?.toUpperCase()}
+              </Text>
+              {!!item.state && (
+                <Text style={styles.listItemText}>{item.state}</Text>
+              )}
+              {!!item.country && (
+                <Text style={styles.listItemText}>
+                  {item.country?.toUpperCase()}
+                </Text>
+              )}
             </TouchableOpacity>
           ),
         }}
@@ -61,11 +70,18 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 2,
     borderRadius: 4,
-    margin: 10,
+    marginHorizontal: 10,
+    marginTop: 15,
   },
   listContainer: {
-    padding: 10,
+    marginHorizontal: 10,
   },
+  listItem: {
+    flexDirection: 'row',
+    borderWidth: 0.5,
+    borderColor: 'gray',
+  },
+  listItemText: {marginTop: 2, marginRight: 10, marginLeft: 5},
 });
 
 export default SearchBar;

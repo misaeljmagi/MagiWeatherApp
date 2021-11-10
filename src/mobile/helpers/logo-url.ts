@@ -1,6 +1,7 @@
 const logoMap = {
   'clear sky': '01d.png',
   'few clouds': '02d.png',
+  clouds: '02d.png',
   'scattered clouds': '03d.png',
   'broken clouds': '04d.png',
   'shower rain': '09d.png',

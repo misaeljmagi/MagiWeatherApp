@@ -9,30 +9,26 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import {Header} from 'react-native-elements';
 import {useDispatch, useSelector} from 'react-redux';
 import {DailyForecast} from '../../common/types/forecast';
-import {Location} from '../../common/types/location';
 import WeatherCard from '../components/WeatherCard';
 import {formatTemperature} from '../helpers/format-temperature';
 import {fetchLocation} from '../helpers/geo-location';
-import {LocationStateType, currentLocationSet} from '../store/location/slices';
+import {
+  LocationStateType,
+  currentLocationSet,
+  listLocationSelected,
+} from '../store/location/slices';
 import {
   WeatherStateType,
   fetchWeatherAction,
   fetchForecastAction,
 } from '../store/weather/slices';
+import Button from '../components/Button';
 
-type WeatherDetailScreenProps = {
-  location: Location;
-  navigation: any;
-};
+import ServiceUnavailable from '../components/ServiceUnavailable';
 
-const WeatherDetailScreen: React.FC<WeatherDetailScreenProps> = ({
-  location,
-  navigation,
-  params,
-}) => {
+const WeatherDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
   const locationState = useSelector(
     (state: {locations: LocationStateType}) => state.locations,
@@ -41,35 +37,37 @@ const WeatherDetailScreen: React.FC<WeatherDetailScreenProps> = ({
     (state: {weather: WeatherStateType}) => state.weather,
   );
 
-  const {locationError, locationLoading, currentLocation} = locationState;
+  const {currentLocation, selectedLocation} = locationState;
 
   const {currentWeather, forecast, weatherLoading, weatherError} = weatherState;
 
-  const fetchCurrentLocation = useCallback(async () => {
-    if (!location) {
-      await fetchLocation({
+  const fetchCurrentLocation = useCallback(
+    async () =>
+      fetchLocation({
         onLocationObtained: value => dispatch(currentLocationSet(value)),
-      });
-    }
-  }, [dispatch, location]);
+      }),
+
+    [dispatch],
+  );
+
+  const handleCurrentLocationButtonPress = useCallback(() => {
+    dispatch(listLocationSelected(undefined));
+    fetchCurrentLocation();
+  }, [dispatch, fetchCurrentLocation]);
 
   useEffect(() => {
-    if (!location) {
+    if (!selectedLocation) {
       fetchCurrentLocation();
     }
-  }, [fetchCurrentLocation, location]);
+  }, [fetchCurrentLocation, selectedLocation]);
 
   useEffect(() => {
-    const selectedLocation = location || currentLocation;
-    if (selectedLocation) {
-      dispatch(fetchWeatherAction(selectedLocation));
-      dispatch(fetchForecastAction(selectedLocation));
+    const location = selectedLocation || currentLocation;
+    if (location) {
+      dispatch(fetchWeatherAction(location));
+      dispatch(fetchForecastAction(location));
     }
-  }, [currentLocation, dispatch, fetchCurrentLocation, location]);
-
-  if (params) {
-    console.warn(params);
-  }
+  }, [currentLocation, dispatch, fetchCurrentLocation, selectedLocation]);
 
   return (
     <View style={styles.container}>
@@ -78,11 +76,26 @@ const WeatherDetailScreen: React.FC<WeatherDetailScreenProps> = ({
         <ScrollView contentInsetAdjustmentBehavior="automatic" />
       </SafeAreaView>
 
-      {!location && currentLocation && <Text>Current Location</Text>}
-      {location && <Text>{location.city}</Text>}
+      {!selectedLocation && currentLocation && (
+        <Text style={styles.header}>Current Location</Text>
+      )}
+      {selectedLocation && (
+        <View>
+          <Text style={styles.header}>{selectedLocation.city}</Text>
+        </View>
+      )}
+
+      {weatherError && (
+        <ServiceUnavailable
+          title={
+            'Sorry, service is currently not available, please try again later'
+          }
+          onRetryButtonPress={fetchCurrentLocation}
+        />
+      )}
 
       {weatherLoading && <ActivityIndicator size="large" color="#144d91" />}
-      {!weatherLoading && !!currentWeather && (
+      {!weatherLoading && !weatherError && !!currentWeather && (
         <>
           <WeatherCard
             title={currentWeather.main}
@@ -99,6 +112,13 @@ const WeatherDetailScreen: React.FC<WeatherDetailScreenProps> = ({
                 secondSubtitle={`Min: ${formatTemperature(f.temp.min)}`}
               />
             ))}
+          {selectedLocation && (
+            <Button
+              iconName={'location-pin'}
+              label={'Current location'}
+              onPress={handleCurrentLocationButtonPress}
+            />
+          )}
         </>
       )}
     </View>
@@ -108,6 +128,11 @@ const WeatherDetailScreen: React.FC<WeatherDetailScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'flex-start',
+  },
+  header: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 20,
   },
 });
 
