@@ -6,11 +6,15 @@ import SearchBar from '../components/SearchBar';
 
 import {
   fetchLocationsAction,
-  locationSelect,
+  locationSelected,
   LocationStateType,
 } from '../store/location/slices';
 
-const AddLocationScreen: React.FC = ({navigation}) => {
+type AddLocationScreenProps = {
+  navigation: {pop: () => void};
+};
+
+const AddLocationScreen: React.FC<AddLocationScreenProps> = ({navigation}) => {
   const dispatch = useDispatch();
 
   const locationState = useSelector(
@@ -20,7 +24,7 @@ const AddLocationScreen: React.FC = ({navigation}) => {
   const {locations} = locationState;
 
   const handleOnResultPress = (index: number) =>
-    dispatch(locationSelect(index));
+    dispatch(locationSelected(index));
 
   const handleOnChangeText = (value: string) => {
     if (value.length > 3) {

@@ -2,7 +2,6 @@ import React from 'react';
 
 import {NavigationContainer} from '@react-navigation/native';
 
-import HomeScreen from './src/mobile/screens/HomeScreen';
 import LocationsScreen from './src/mobile/screens/LocationsScreen';
 
 import AddLocationScreen from './src/mobile/screens/AddLocationScreen';
@@ -11,23 +10,24 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {navigationRef} from './RootNavigation';
 import CustomIcon from './src/mobile/components/CustomIcon';
+import WeatherDetailScreen from './src/mobile/screens/WeatherDetailScreen';
 
 const Tab = createBottomTabNavigator();
 
 const Stack = createNativeStackNavigator();
 
-const HomeStack = createNativeStackNavigator();
+const WeatherDetailStack = createNativeStackNavigator();
 const LocationsStack = createNativeStackNavigator();
 const AddLocationStack = createNativeStackNavigator();
 
-const HomeStackScreen = () => (
-  <HomeStack.Navigator>
-    <HomeStack.Screen
-      name="HomeScreen"
-      component={HomeScreen}
+const WeatherDetailStackScreen = () => (
+  <WeatherDetailStack.Navigator>
+    <WeatherDetailStack.Screen
+      name="WeatherDetailScreen"
+      component={WeatherDetailScreen}
       options={{headerShown: false}}
     />
-  </HomeStack.Navigator>
+  </WeatherDetailStack.Navigator>
 );
 
 const LocationsStackScreen = () => (
@@ -60,7 +60,7 @@ const TabNavigator = () => (
       tabBarIcon: ({size}) => {
         let iconName;
 
-        if (route.name === 'Home') {
+        if (route.name === 'Weather Detail') {
           iconName = 'wb-sunny';
         } else if (route.name === 'Locations') {
           iconName = 'map';
@@ -71,7 +71,7 @@ const TabNavigator = () => (
       tabBarActiveTintColor: 'tomato',
       tabBarInactiveTintColor: 'gray',
     })}>
-    <Tab.Screen name="Home" component={HomeStackScreen} />
+    <Tab.Screen name="Weather Detail" component={WeatherDetailStackScreen} />
     <Tab.Screen name="Locations" component={LocationsStackScreen} />
   </Tab.Navigator>
 );
@@ -82,6 +82,10 @@ const App = () => {
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Screen name="Home" component={TabNavigator} />
+          <Stack.Screen
+            name="Weather Detail"
+            component={WeatherDetailStackScreen}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

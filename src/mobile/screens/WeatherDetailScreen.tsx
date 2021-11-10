@@ -1,5 +1,3 @@
-import {NavigationProp} from '@react-navigation/core';
-import {NavigationAction, NavigationState} from '@react-navigation/routers';
 import moment from 'moment';
 import React, {useCallback, useEffect} from 'react';
 import {
@@ -7,11 +5,16 @@ import {
   StatusBar,
   ScrollView,
   ActivityIndicator,
+  Text,
+  StyleSheet,
+  View,
 } from 'react-native';
+import {Header} from 'react-native-elements';
 import {useDispatch, useSelector} from 'react-redux';
 import {DailyForecast} from '../../common/types/forecast';
-
+import {Location} from '../../common/types/location';
 import WeatherCard from '../components/WeatherCard';
+import {formatTemperature} from '../helpers/format-temperature';
 import {fetchLocation} from '../helpers/geo-location';
 import {LocationStateType, currentLocationSet} from '../store/location/slices';
 import {
@@ -20,7 +23,16 @@ import {
   fetchForecastAction,
 } from '../store/weather/slices';
 
-const HomeScreen: React.FC = () => {
+type WeatherDetailScreenProps = {
+  location: Location;
+  navigation: any;
+};
+
+const WeatherDetailScreen: React.FC<WeatherDetailScreenProps> = ({
+  location,
+  navigation,
+  params,
+}) => {
   const dispatch = useDispatch();
   const locationState = useSelector(
     (state: {locations: LocationStateType}) => state.locations,
@@ -29,47 +41,53 @@ const HomeScreen: React.FC = () => {
     (state: {weather: WeatherStateType}) => state.weather,
   );
 
-  const {
-    locationError,
-    locationLoading,
-    savedLocations,
-    locations,
-    currentLocation,
-  } = locationState;
+  const {locationError, locationLoading, currentLocation} = locationState;
 
   const {currentWeather, forecast, weatherLoading, weatherError} = weatherState;
 
   const fetchCurrentLocation = useCallback(async () => {
-    await fetchLocation({
-      onLocationObtained: value => dispatch(currentLocationSet(value)),
-    });
-  }, [dispatch]);
-
-  useEffect(() => {
-    fetchCurrentLocation();
-  }, [fetchCurrentLocation]);
-
-  useEffect(() => {
-    if (currentLocation) {
-      dispatch(fetchWeatherAction(currentLocation));
-      dispatch(fetchForecastAction(currentLocation));
+    if (!location) {
+      await fetchLocation({
+        onLocationObtained: value => dispatch(currentLocationSet(value)),
+      });
     }
-  }, [currentLocation, dispatch, fetchCurrentLocation]);
+  }, [dispatch, location]);
+
+  useEffect(() => {
+    if (!location) {
+      fetchCurrentLocation();
+    }
+  }, [fetchCurrentLocation, location]);
+
+  useEffect(() => {
+    const selectedLocation = location || currentLocation;
+    if (selectedLocation) {
+      dispatch(fetchWeatherAction(selectedLocation));
+      dispatch(fetchForecastAction(selectedLocation));
+    }
+  }, [currentLocation, dispatch, fetchCurrentLocation, location]);
+
+  if (params) {
+    console.warn(params);
+  }
 
   return (
-    <>
+    <View style={styles.container}>
       <SafeAreaView>
         <StatusBar />
         <ScrollView contentInsetAdjustmentBehavior="automatic" />
       </SafeAreaView>
+
+      {!location && currentLocation && <Text>Current Location</Text>}
+      {location && <Text>{location.city}</Text>}
 
       {weatherLoading && <ActivityIndicator size="large" color="#144d91" />}
       {!weatherLoading && !!currentWeather && (
         <>
           <WeatherCard
             title={currentWeather.main}
-            subtitle={String(currentWeather.temp)}
-            summary={'SUMMARY'}
+            firstSubtitle={formatTemperature(currentWeather.temp)}
+            secondSubtitle={formatTemperature(currentWeather.feels_like)}
             isMainCard
           />
           {forecast &&
@@ -77,14 +95,20 @@ const HomeScreen: React.FC = () => {
               <WeatherCard
                 key={index}
                 title={moment(f.dt * 1000).format('dddd D')}
-                subtitle={`${String(f.temp.max).replace('.', ',')}°C`}
-                summary={String(f.temp.min)}
+                firstSubtitle={`Max: ${formatTemperature(f.temp.max)}`}
+                secondSubtitle={`Min: ${formatTemperature(f.temp.min)}`}
               />
             ))}
         </>
       )}
-    </>
+    </View>
   );
 };
 
-export default HomeScreen;
+const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'flex-start',
+  },
+});
+
+export default WeatherDetailScreen;

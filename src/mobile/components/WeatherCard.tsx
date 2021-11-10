@@ -1,19 +1,30 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {
+  ImageStyle,
+  StyleSheet,
+  Text,
+  TextStyle,
+  View,
+  ViewStyle,
+} from 'react-native';
+import {Image} from 'react-native-elements';
+import {logoUrl} from '../helpers/logo-url';
 
 import Dimensions from '../helpers/screen-dimensions';
 
 type WeatherCardProps = {
+  header?: string;
   title: string;
-  subtitle: string;
-  summary: string;
+  firstSubtitle: string;
+  secondSubtitle: string;
   isMainCard?: boolean;
 };
 
 const WeatherCard: React.FC<WeatherCardProps> = ({
+  header,
   title,
-  subtitle,
-  summary,
+  firstSubtitle,
+  secondSubtitle,
   isMainCard = false,
 }) => {
   const {height, width} = Dimensions;
@@ -25,20 +36,33 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
         {height: isMainCard ? height * 0.15 : height * 0.08},
         {width: width * 0.95},
       ]}>
+      {header && <View style={styles.header}>{header}</View>}
       <View>
+        {isMainCard && (
+          <Image source={{uri: logoUrl(title)}} style={styles.logo} />
+        )}
         <Text style={styles.title}>{title}</Text>
       </View>
       <View>
-        <Text style={styles.subtitle}>{subtitle}</Text>
+        <Text style={styles.subtitle}>{firstSubtitle}</Text>
       </View>
       <View>
-        <Text style={styles.summary}>{summary}</Text>
+        <Text style={styles.summary}>{secondSubtitle}</Text>
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+type StyleType = {
+  container: ViewStyle;
+  logo: ImageStyle;
+  header: TextStyle;
+  title: TextStyle;
+  subtitle: TextStyle;
+  summary: TextStyle;
+};
+
+const styles = StyleSheet.create<StyleType>({
   container: {
     backgroundColor: '#689ff7',
     borderRadius: 4,
@@ -46,16 +70,20 @@ const styles = StyleSheet.create({
     padding: 5,
     alignSelf: 'flex-start',
   },
+  logo: {
+    width: 50,
+    height: 50,
+  },
+  header: {fontWeight: 'bold', fontSize: 15},
   title: {
     fontWeight: 'bold',
     fontSize: 20,
   },
   subtitle: {
-    fontSize: 15,
-    marginLeft: 3,
+    fontSize: 12,
   },
   summary: {
-    fontSize: 10,
+    fontSize: 12,
   },
 });
 

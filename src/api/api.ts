@@ -15,7 +15,7 @@ export const getCurrentWeatherForLocation = async (
 export const getForecastForLocation = async (lat: number, lon: number) => {
   const {data} = await Axios.get('/weather/v1/forecast', {params: {lat, lon}});
 
-  return data;
+  return data.slice(1, 6);
 };
 
 export const getLocations = async (city: string) => {

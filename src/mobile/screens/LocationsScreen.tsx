@@ -1,15 +1,16 @@
 import React, {useCallback} from 'react';
 import {StyleSheet} from 'react-native';
-import {Icon} from 'react-native-elements';
+
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 import {useDispatch, useSelector} from 'react-redux';
 import {navigate} from '../../../RootNavigation';
+import CustomIcon from '../components/CustomIcon';
 import LocationCard from '../components/LocationCard';
 
-import {locationRemove, LocationStateType} from '../store/location/slices';
+import {locationRemoved, LocationStateType} from '../store/location/slices';
 
-const LocationsScreen: React.FC = () => {
+const LocationsScreen: React.FC = ({navigation}) => {
   const dispatch = useDispatch();
   const locationState = useSelector(
     (state: {locations: LocationStateType}) => state.locations,
@@ -17,9 +18,16 @@ const LocationsScreen: React.FC = () => {
 
   const {savedLocations} = locationState;
 
+  // console.warn(navigation);
+
   const handleOnDeleteLocationPress = useCallback(
-    index => dispatch(locationRemove(index)),
+    index => dispatch(locationRemoved(index)),
     [dispatch],
+  );
+
+  const handleLocationPress = useCallback(
+    location => navigation.push('Weather Detail', {location}),
+    [navigation],
   );
 
   return (
@@ -28,16 +36,15 @@ const LocationsScreen: React.FC = () => {
         savedLocations.map((location, index) => (
           <LocationCard
             key={index}
-            title={location.city}
-            subtitle={location.state || location.country}
+            location={location}
             onDeleteLocationPress={() => handleOnDeleteLocationPress(index)}
+            onLocationPress={() => handleLocationPress(location)}
           />
         ))}
       {savedLocations.length < 5 && (
-        <Icon
+        <CustomIcon
           style={styles.icon}
           name={'add'}
-          tvParallaxProperties
           onPress={() => navigate('AddLocation')}
         />
       )}

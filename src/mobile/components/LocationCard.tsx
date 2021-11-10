@@ -1,22 +1,24 @@
-import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import React, {useCallback} from 'react';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
+
+import {Location} from '../../common/types/location';
 
 import Dimensions from '../helpers/screen-dimensions';
 import CustomIcon from './CustomIcon';
 
+const {height, width} = Dimensions;
+
 type LocationCardProps = {
-  title: string;
-  subtitle: string;
+  location: Location;
   onDeleteLocationPress?: (index) => void;
+  onLocationPress;
 };
 
 const LocationCard: React.FC<LocationCardProps> = ({
-  title,
-  subtitle,
+  location,
   onDeleteLocationPress,
+  onLocationPress,
 }) => {
-  const {height, width} = Dimensions;
-
   return (
     <View
       style={[
@@ -24,12 +26,16 @@ const LocationCard: React.FC<LocationCardProps> = ({
         {height: height * 0.08},
         {width: width * 0.95},
       ]}>
-      <View>
-        <Text style={styles.title}>{title}</Text>
-      </View>
-      <View>
-        <Text style={styles.subtitle}>{subtitle}</Text>
-      </View>
+      <Pressable onPress={onLocationPress}>
+        <View>
+          <Text style={styles.title}>{location.city}</Text>
+        </View>
+        <View>
+          <Text style={styles.subtitle}>
+            {location.state || location.country}
+          </Text>
+        </View>
+      </Pressable>
       <CustomIcon
         name={'delete'}
         color={'red'}

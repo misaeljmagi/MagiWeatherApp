@@ -44,7 +44,7 @@ const slice = createSlice<LocationStateType, any>({
     currentLocationSet: (state: LocationStateType, action: any) => {
       state.currentLocation = action.payload;
     },
-    locationSelect: (state: LocationStateType, action: any) => {
+    locationSelected: (state: LocationStateType, action: any) => {
       state.savedLocations.push(state.locations[action.payload]);
     },
     locationRemove: (state: LocationStateType, action: any) => {
@@ -81,7 +81,7 @@ const slice = createSlice<LocationStateType, any>({
   },
 });
 
-export const {currentLocationSet, locationSelect, locationRemove} =
+export const {currentLocationSet, locationSelected, locationRemoved} =
   slice.actions;
 
 export default slice.reducer;

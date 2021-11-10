@@ -30,7 +30,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         listContainerStyle={styles.listContainer}
         value={text}
         hideResults={text.length === 0}
-        placeholder={'Buscá tu ciudad'}
+        placeholder={'Find your city'}
         onChangeText={value => {
           setText(value);
           onChangeText(value);
